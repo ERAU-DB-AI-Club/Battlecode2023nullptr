@@ -7,7 +7,12 @@ public class MovingRobot extends Behavior{
 		
 	}
 	
-	public void takeTurn() {
+	@Override
+	void takeTurn() {
+		
+	}
+	
+	void explore() {
 		
 	}
 }
