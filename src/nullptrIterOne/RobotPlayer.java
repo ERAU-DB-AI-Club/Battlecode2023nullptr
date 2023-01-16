@@ -10,23 +10,20 @@ import java.util.Random;
 import java.util.Set;
 
 public strictfp class RobotPlayer {
-	Behavior agent;
+	static Behavior agent;
     @SuppressWarnings("unused")
     public static void run(RobotController rc) throws GameActionException {
     	try {
 	        switch (rc.getType()) {
-	            case HEADQUARTERS: break;
-	            case CARRIER: agent = new CarrierRobot(); break;
+	            case HEADQUARTERS: agent = new Headquarters(rc); break;
+	            case CARRIER: agent = new CarrierRobot(rc); break;
 	            case LAUNCHER: break;
 	            case BOOSTER: break;
 	            case DESTABILIZER: break;
 	            case AMPLIFIER: break;
 	        }
-    	} catch (GameActionException e) {
-            System.out.println("Illegal Action: " + rc.getType() + " Exception");
-            e.printStackTrace();
-
-        } catch (Exception e) {
+	        agent.takeTurn();
+    	} catch (Exception e) {
             System.out.println("Runtime Error: " + rc.getType() + " Exception");
             e.printStackTrace();
 
