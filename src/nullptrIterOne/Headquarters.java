@@ -22,7 +22,9 @@ public class Headquarters extends Behavior {
 		while (true) {
 			try {
 				rc.writeSharedArray(rc.getID(), command);
-				rc.buildRobot(RobotType.CARRIER, spawn);
+				if (rc.canBuildRobot(RobotType.CARRIER, spawn)){
+					rc.buildRobot(RobotType.CARRIER, spawn);
+				}
 			} catch (GameActionException e) {
 	            System.out.println(rc.getType() + " Exception");
 	            e.printStackTrace();
