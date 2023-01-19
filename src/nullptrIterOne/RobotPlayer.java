@@ -17,7 +17,7 @@ public strictfp class RobotPlayer {
 	        switch (rc.getType()) {
 	            case HEADQUARTERS: agent = new Headquarters(rc); break;
 	            case CARRIER: agent = new CarrierRobot(rc); break;
-	            case LAUNCHER: break;
+	            case LAUNCHER: agent = new LauncherRobot(rc); break;
 	            case BOOSTER: break;
 	            case DESTABILIZER: break;
 	            case AMPLIFIER: break;
