@@ -22,7 +22,7 @@ public class Headquarters extends Behavior {
 		while (true) {
 			try {
 				rc.writeSharedArray(rc.getID(), command);
-				if (rc.canBuildAnchor(Anchor.STANDARD)) {
+				if (rc.canBuildAnchor(Anchor.STANDARD) && rc.getRoundNum() > 10) {
 					rc.buildAnchor(Anchor.STANDARD);
 				}
 				else if (rc.canBuildRobot(RobotType.CARRIER, spawn) && rc.getRoundNum() % 2 == 0

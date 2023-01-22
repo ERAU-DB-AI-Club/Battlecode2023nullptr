@@ -17,8 +17,7 @@ public class MovingRobot extends Behavior{
         Direction.NORTHWEST,
     };
 	private RobotController rc;
-	private int mapLocX;
-	private int mapLocY;
+	private MapLocation mapLoc;
 	private MapLocation curLoc;
 	
 	public MovingRobot(RobotController rc) {
@@ -38,45 +37,40 @@ public class MovingRobot extends Behavior{
 	
 	
 	public int getMapLocX() {
-		return mapLocX;
+		return mapLoc.x;
 	}
 
 	public void setMapLocX(int mapLocX) {
-		this.mapLocX = mapLocX;
+		mapLoc = new MapLocation(mapLocX, mapLoc.y);
 	}
 
 	public int getMapLocY() {
-		return mapLocY;
+		return mapLoc.y;
 	}
 	
 	public void setTargetLoc(int x, int y) {
-		mapLocX = x;
-		mapLocY = y;
+		mapLoc = new MapLocation(x,y);
 	}
 	
 	public void setTargetLoc(MapLocation target) {
-		mapLocX = target.x;
-		mapLocY = target.y;
+		mapLoc = target;
 	}
 
 	public void setMapLocY(int mapLocY) {
-		this.mapLocY = mapLocY;
+		mapLoc = new MapLocation(mapLoc.x, mapLocY);
 	}
 	
 	public void moveTo() throws GameActionException {
-		curLoc = rc.getLocation();
-		if(curLoc.x > mapLocX && rc.canMove(Direction.WEST)) {
-			rc.move(Direction.WEST);
-		}
-		else if(curLoc.x < mapLocX && rc.canMove(Direction.EAST)) {
-			rc.move(Direction.EAST);
-		}
-		if(curLoc.y > mapLocY && rc.canMove(Direction.SOUTH)) {
-			rc.move(Direction.SOUTH);
-		}
-		else if(curLoc.y < mapLocY && rc.canMove(Direction.NORTH)) {
-			rc.move(Direction.NORTH);
-		}
+		Direction targ = rc.getLocation().directionTo(mapLoc);
+		if	(rc.canMove(targ)) {
+			Direction currdir = rc.senseMapInfo(rc.adjacentLocation(targ)).getCurrentDirection();
+			if (currdir == Direction.CENTER || currdir == targ) {
+				rc.move(targ);
+			}
+			else {
+				explore();
+			}
+		} 
 		if (rc.getRoundNum() % 3 == 0) {
 			explore();
 		}
