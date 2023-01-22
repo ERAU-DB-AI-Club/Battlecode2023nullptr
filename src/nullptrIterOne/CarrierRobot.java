@@ -6,6 +6,7 @@ public class CarrierRobot extends MovingRobot {
 	RobotController rc;
 	MapLocation HomeBase;
 	MapLocation PatrolPoint;
+	boolean hasAnchor;
 	
 	public CarrierRobot(RobotController rc) {
 		super(rc);
@@ -18,6 +19,10 @@ public class CarrierRobot extends MovingRobot {
 			try {
 				if (HomeBase == null) {
 					HomeBase = rc.adjacentLocation(Direction.SOUTHEAST);		
+					if (rc.canTakeAnchor(HomeBase, Anchor.STANDARD) && rc.getRoundNum() % 3 == 0) {
+						rc.takeAnchor(HomeBase, Anchor.STANDARD);
+						hasAnchor = true;
+					}
 				}
 				for (int i = 0; (rc.getRoundNum() % 5 == 0) && rc.canWriteSharedArray(0, 0) && i < 64; i++) {
 					if ((rc.readSharedArray(i) & 0b1110000000000100) == 0b0110000000000000) {
@@ -45,7 +50,24 @@ public class CarrierRobot extends MovingRobot {
 		            }
 		        }
 		        int weight = (rc.getResourceAmount(ResourceType.ADAMANTIUM) + rc.getResourceAmount(ResourceType.MANA) + rc.getResourceAmount(ResourceType.ELIXIR));
-				if (PatrolPoint == null) {
+				
+		        if (hasAnchor) {
+		        	if (rc.canPlaceAnchor()) {
+						rc.placeAnchor();
+						hasAnchor = false;
+		        	}
+		        }
+		        
+		        if (hasAnchor && PatrolPoint == null) {
+		        	rc.setIndicatorString("Trying to find an Island");
+		        	explore();
+		        	int[] searchResults = rc.senseNearbyIslands();
+		        	if (searchResults.length > 0 && rc.senseAnchorPlantedHealth(searchResults[0]) < 0) {
+		        		PatrolPoint = rc.senseNearbyIslandLocations(searchResults[0])[0];
+		        		setTargetLoc(PatrolPoint);
+		        		rc.setIndicatorString("Moving to an Island.");
+		        	}
+		        } else if (PatrolPoint == null) {
 					rc.setIndicatorString("Exploring");
 					explore();
 					WellInfo[] searchResults = rc.senseNearbyWells();
@@ -60,7 +82,7 @@ public class CarrierRobot extends MovingRobot {
 			        	setTargetLoc(HomeBase);
 				    } 
 				    if (weight == 0) {
-				    	setTargetLoc(PatrolPoint);
+				    	setTargetLoc(PatrolPoint); 
 				    	//TODO: Directional, instead of just at the location.
 					} else if (rc.canTransferResource(HomeBase, ResourceType.ADAMANTIUM, rc.getResourceAmount(ResourceType.ADAMANTIUM)))  {
 						rc.transferResource(HomeBase, ResourceType.ADAMANTIUM, rc.getResourceAmount(ResourceType.ADAMANTIUM));

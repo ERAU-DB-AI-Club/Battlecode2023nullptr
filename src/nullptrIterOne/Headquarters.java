@@ -22,10 +22,15 @@ public class Headquarters extends Behavior {
 		while (true) {
 			try {
 				rc.writeSharedArray(rc.getID(), command);
-				if (rc.canBuildRobot(RobotType.CARRIER, spawn) && rc.getRoundNum() % 2 == 0){
+				if (rc.canBuildAnchor(Anchor.STANDARD) && rc.getRoundNum() > 10) {
+					rc.buildAnchor(Anchor.STANDARD);
+				}
+				else if (rc.canBuildRobot(RobotType.CARRIER, spawn) && rc.getRoundNum() % 2 == 0
+						&& (rc.getRoundNum() < 200 || rc.getNumAnchors(Anchor.STANDARD) > 0)) { 
 					rc.buildRobot(RobotType.CARRIER, spawn);
 				} 
-				else if (rc.canBuildRobot(RobotType.LAUNCHER, spawn)) {
+				else if (rc.canBuildRobot(RobotType.LAUNCHER, spawn) && 
+						(rc.getRoundNum() < 200 || rc.getNumAnchors(Anchor.STANDARD) > 0)) {
 					rc.buildRobot(RobotType.LAUNCHER, spawn);
 				}
 			} catch (GameActionException e) {
