@@ -1,4 +1,4 @@
-package nullptrIterOne;
+package nullptrSubTwo;
 
 import battlecode.common.*;
 
@@ -18,16 +18,12 @@ public class Headquarters extends Behavior {
 		command = command << 5; 
 		command = command | (mylocation.y - 2);
 		command = command << 3;
+		MapLocation spawn = new MapLocation(mylocation.x - 1, mylocation.y + 1);
 		while (true) {
 			try {
-				MapLocation spawn = rc.adjacentLocation(getRandomDirection());
 				rc.writeSharedArray(rc.getID(), command);
 				if (rc.canBuildAnchor(Anchor.STANDARD) && rc.getRoundNum() > 10) {
 					rc.buildAnchor(Anchor.STANDARD);
-				}
-				else if (rc.canBuildRobot(RobotType.BOOSTER, spawn) && rc.getRoundNum() % 15 == 0 
-						&& (rc.getRoundNum() < 200 || rc.getNumAnchors(Anchor.STANDARD) > 0)) {
-					rc.buildRobot(RobotType.BOOSTER, spawn);
 				}
 				else if (rc.canBuildRobot(RobotType.CARRIER, spawn) && rc.getRoundNum() % 2 == 0
 						&& (rc.getRoundNum() < 200 || rc.getNumAnchors(Anchor.STANDARD) > 0)) { 

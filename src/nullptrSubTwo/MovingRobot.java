@@ -1,7 +1,6 @@
-package nullptrIterOne;
+package nullptrSubTwo;
 
 import java.util.Random;
-
 import battlecode.common.*;
 
 public class MovingRobot extends Behavior{
@@ -19,25 +18,9 @@ public class MovingRobot extends Behavior{
 	private RobotController rc;
 	private MapLocation mapLoc;
 	private MapLocation curLoc;
-	protected MapLocation HomeBase;
 	
 	public MovingRobot(RobotController rc) {
 		this.rc = rc;
-		try {
-			RobotInfo[] searchResults = rc.senseNearbyRobots(2, rc.getTeam());
-			for (int i = 0; HomeBase == null; i++) {
-				if (searchResults[i].type == RobotType.HEADQUARTERS) {
-					HomeBase = searchResults[i].location;
-				}
-			}
-		} catch (GameActionException e) {
-            System.out.println(rc.getType() + " Exception");
-            e.printStackTrace();
-
-        } catch (Exception e) {
-            System.out.println(rc.getType() + " Exception");
-            e.printStackTrace();
-        } 		
 	}
 	
 	@Override 
