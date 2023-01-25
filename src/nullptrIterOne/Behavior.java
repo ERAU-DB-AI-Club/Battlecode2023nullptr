@@ -11,4 +11,12 @@ public abstract class Behavior {
 	public Direction getRandomDirection() {
 		return dirArray[(int) Math.floor(Math.random() * 8)];
 	}
+	
+	public int byteCheck(int pulse) {
+		int check = Clock.getBytecodesLeft();
+		if (pulse > check) {
+			System.out.println("Bytecheck Failed!!!");
+		}
+		return check;
+	}
 }

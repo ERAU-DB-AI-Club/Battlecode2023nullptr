@@ -11,17 +11,9 @@ public class Headquarters extends Behavior {
 
 	@Override
 	void takeTurn() {
-		int command = 0b011;
-		command = command << 5;
-		MapLocation mylocation = rc.getLocation();
-		command = command | (mylocation.x + 2);
-		command = command << 5; 
-		command = command | (mylocation.y - 2);
-		command = command << 3;
 		while (true) {
 			try {
 				MapLocation spawn = rc.adjacentLocation(getRandomDirection());
-				rc.writeSharedArray(rc.getID(), command);
 				if (rc.canBuildAnchor(Anchor.STANDARD) && rc.getRoundNum() > 10) {
 					rc.buildAnchor(Anchor.STANDARD);
 				}
@@ -40,7 +32,6 @@ public class Headquarters extends Behavior {
 			} catch (GameActionException e) {
 	            System.out.println(rc.getType() + " Exception");
 	            e.printStackTrace();
-
 	        } catch (Exception e) {
 	            System.out.println(rc.getType() + " Exception");
 	            e.printStackTrace();

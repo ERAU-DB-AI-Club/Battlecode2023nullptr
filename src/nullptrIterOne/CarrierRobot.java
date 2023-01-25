@@ -29,16 +29,6 @@ public class CarrierRobot extends MovingRobot {
 	void takeTurn() {
 		while (true) {
 			try {
-				for (int i = 0; (rc.getRoundNum() % 5 == 0) && rc.canWriteSharedArray(0, 0) && i < 64; i++) {
-					if ((rc.readSharedArray(i) & 0b1110000000000100) == 0b0110000000000000) {
-						int toPublish = rc.readSharedArray(i) | 0b0000000000000100;
-						rc.writeSharedArray(i, toPublish);
-						PatrolPoint = new MapLocation(((rc.readSharedArray(i) & 0b0001111100000000) >> 8), ((rc.readSharedArray(i) & 0b0000000011111000) >> 3));
-						setTargetLoc(PatrolPoint);
-						rc.setIndicatorString("Going to caravan point x: " + PatrolPoint.x + ", y: " + PatrolPoint.y);
-						i = 64;
-					}
-				}
 				MapLocation me = rc.getLocation();
 		        for (int dx = -1; dx <= 1; dx++) {
 		            for (int dy = -1; dy <= 1; dy++) {
