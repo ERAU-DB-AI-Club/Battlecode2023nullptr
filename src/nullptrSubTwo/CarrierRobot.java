@@ -1,34 +1,39 @@
-package nullptrIterOne;
+package nullptrSubTwo;
 
 import battlecode.common.*;
 
 public class CarrierRobot extends MovingRobot {
 	RobotController rc;
+	MapLocation HomeBase;
 	MapLocation PatrolPoint;
 	boolean hasAnchor;
 	
 	public CarrierRobot(RobotController rc) {
 		super(rc);
 		this.rc = rc;
-		try {
-			if (rc.canTakeAnchor(HomeBase, Anchor.STANDARD) && rc.getRoundNum() % 3 == 0) {
-				rc.takeAnchor(HomeBase, Anchor.STANDARD);
-				hasAnchor = true;
-			}
-		}catch (GameActionException e) {
-            System.out.println(rc.getType() + " Exception");
-            e.printStackTrace();
-
-        } catch (Exception e) {
-            System.out.println(rc.getType() + " Exception");
-            e.printStackTrace();
-        }
 	}
 	
 	@Override
 	void takeTurn() {
 		while (true) {
 			try {
+				if (HomeBase == null) {
+					HomeBase = rc.adjacentLocation(Direction.SOUTHEAST);		
+					if (rc.canTakeAnchor(HomeBase, Anchor.STANDARD) && rc.getRoundNum() % 3 == 0) {
+						rc.takeAnchor(HomeBase, Anchor.STANDARD);
+						hasAnchor = true;
+					}
+				}
+				for (int i = 0; (rc.getRoundNum() % 5 == 0) && rc.canWriteSharedArray(0, 0) && i < 64; i++) {
+					if ((rc.readSharedArray(i) & 0b1110000000000100) == 0b0110000000000000) {
+						int toPublish = rc.readSharedArray(i) | 0b0000000000000100;
+						rc.writeSharedArray(i, toPublish);
+						PatrolPoint = new MapLocation(((rc.readSharedArray(i) & 0b0001111100000000) >> 8), ((rc.readSharedArray(i) & 0b0000000011111000) >> 3));
+						setTargetLoc(PatrolPoint);
+						rc.setIndicatorString("Going to caravan point x: " + PatrolPoint.x + ", y: " + PatrolPoint.y);
+						i = 64;
+					}
+				}
 				MapLocation me = rc.getLocation();
 		        for (int dx = -1; dx <= 1; dx++) {
 		            for (int dy = -1; dy <= 1; dy++) {
@@ -76,20 +81,15 @@ public class CarrierRobot extends MovingRobot {
 			        	rc.setIndicatorString("Going Back to Base.");
 			        	setTargetLoc(HomeBase);
 				    } 
-				    Direction pointAtBase = rc.getLocation().directionTo(HomeBase);
-				    MapLocation toBase = rc.adjacentLocation(pointAtBase);
 				    if (weight == 0) {
 				    	setTargetLoc(PatrolPoint); 
 				    	//TODO: Directional, instead of just at the location.
-					} else if (rc.canTransferResource(toBase, ResourceType.ADAMANTIUM, rc.getResourceAmount(ResourceType.ADAMANTIUM)))  {
-						rc.transferResource(toBase, ResourceType.ADAMANTIUM, rc.getResourceAmount(ResourceType.ADAMANTIUM));
-						rc.setIndicatorString("Transferring Adamantium " + pointAtBase);
-					} else if (rc.canTransferResource(toBase, ResourceType.MANA, rc.getResourceAmount(ResourceType.MANA)))  {
-						rc.transferResource(toBase, ResourceType.MANA, rc.getResourceAmount(ResourceType.MANA));
-						rc.setIndicatorString("Transferring Mana " + pointAtBase);
-					} else if (rc.canTransferResource(toBase, ResourceType.ELIXIR, rc.getResourceAmount(ResourceType.ELIXIR)))  {
-						rc.transferResource(toBase, ResourceType.ELIXIR, rc.getResourceAmount(ResourceType.ELIXIR));
-						rc.setIndicatorString("Transferring Elixir " + pointAtBase);
+					} else if (rc.canTransferResource(HomeBase, ResourceType.ADAMANTIUM, rc.getResourceAmount(ResourceType.ADAMANTIUM)))  {
+						rc.transferResource(HomeBase, ResourceType.ADAMANTIUM, rc.getResourceAmount(ResourceType.ADAMANTIUM));
+					} else if (rc.canTransferResource(HomeBase, ResourceType.MANA, rc.getResourceAmount(ResourceType.MANA)))  {
+						rc.transferResource(HomeBase, ResourceType.MANA, rc.getResourceAmount(ResourceType.MANA));
+					} else if (rc.canTransferResource(HomeBase, ResourceType.ELIXIR, rc.getResourceAmount(ResourceType.ELIXIR)))  {
+						rc.transferResource(HomeBase, ResourceType.ELIXIR, rc.getResourceAmount(ResourceType.ELIXIR));
 					}
 					moveTo();
 				}
