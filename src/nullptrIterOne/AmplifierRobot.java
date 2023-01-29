@@ -13,12 +13,6 @@ public class AmplifierRobot extends MovingRobot{
         if (HomeBase == null) {
             HomeBase = rc.adjacentLocation(Direction.SOUTHEAST);
         }
-
-        int i = 0;
-        while(i < 32 && rc.readSharedArray(i * 2) != 0){
-            i++;
-        }
-        arrayInsert = i * 2;
     } 
 
 	@Override
@@ -29,7 +23,7 @@ public class AmplifierRobot extends MovingRobot{
                 explore();
                 
                 WellInfo[] wells = rc.senseNearbyWells();
-                for(int i = 0;i < wells.length; i++){
+                for(int i = 0; i < wells.length; i++){
                     int out = 0;
                     
                     if(wells[i].getResourceType() == ResourceType.ADAMANTIUM){
@@ -40,11 +34,26 @@ public class AmplifierRobot extends MovingRobot{
                     }
                     if(!isKnownWell(out) && rc.canWriteSharedArray(arrayInsert, out)){
                         rc.writeSharedArray(arrayInsert, out);
-                        arrayInsert += 2;
+                        updateInsert();
+                        System.out.println("WriteA");
                     }
-        
                 }
-
+                
+                int sightRad = rc.getType().actionRadiusSquared;
+                int[] scan = rc.senseNearbyIslands();
+                for(int i = 0; i < scan.length; i++) {
+                	if (rc.senseTeamOccupyingIsland(scan[i]) != rc.getTeam()) {
+                		if(!isKnownIsland(scan[i])) {
+                			rc.writeSharedArray(arrayInsert, 0b01100000000001);
+                			rc.writeSharedArray(arrayInsert + 1, 
+                					0b1111111100000000 | (scan[i] << 3));
+                			updateInsert();
+                			System.out.println("WriteB");
+                		}
+                	}
+                }
+                
+                
             } catch (GameActionException e) {
 	            System.out.println(rc.getType() + " Exception");
 	            e.printStackTrace();
@@ -68,6 +77,29 @@ public class AmplifierRobot extends MovingRobot{
             }
         }
         return false;
+    }
+    
+    public void updateInsert() throws GameActionException {
+    	int i = 0;
+        while(i < 32 && rc.readSharedArray(i * 2) != 0){
+            i++;
+        }
+        for (int ii = 0; ii < 64; ii++) {
+			int currNum = rc.readSharedArray(i);
+			System.out.println(currNum);
+		}
+        arrayInsert = (i * 2 > 63) ? 0 : i * 2;
+    }
+    
+    public boolean isKnownIsland(int l) throws GameActionException {
+    	for(int i = 0; i < 64; i++) {
+    		if((rc.readSharedArray(i) & 0b1110000000000000) == 0b0110000000000000) {
+	    		if((l << 3) == (rc.readSharedArray(i+1) & 0b0000000011111000)) {
+	    			return true;
+	    		}
+    		}
+    	}
+    	return false;
     }
     
 }

@@ -138,6 +138,7 @@ public class LauncherRobot extends MovingRobot{
 									for(int ii = 0b0000010000000000; ii != 0b10000000000000000; ii = ii << 1) {
 										if((ii & extMssg) == 0b0000000000000000) {
 											rc.writeSharedArray(i + 1, ii | extMssg);
+											System.out.println("WriteC");
 											expectCarrier = new MapLocation(
 													(currNum & 0b0001111110000000) >> 7,
 													(currNum & 0b0000000001111110) >> 1);

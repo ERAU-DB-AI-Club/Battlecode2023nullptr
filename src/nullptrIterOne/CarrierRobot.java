@@ -23,6 +23,7 @@ public class CarrierRobot extends MovingRobot {
 								(currNum & 0b0000000001111110) >> 1);
 						setTargetLoc(PatrolPoint);
 						isCaravan = true;
+						System.out.println("WriteF");
 						rc.writeSharedArray(i, currNum | 0b0000000000000001);
 						i = 64;
 					}

@@ -18,13 +18,26 @@ public class Headquarters extends Behavior {
 	void takeTurn() {
 		while (true) {
 			try {
-				
-				if (rc.getRoundNum() == 202 + rc.getID()) {
-					rc.setIndicatorString("MISSION SET");
-					rc.writeSharedArray(9, 0b0110010110001000);
-					rc.writeSharedArray(10, 0b0000000000000000);
+				for (int i = 0; (rc.getRoundNum() % 6 == 0) && i < 64; i++) {
+					int currNum = rc.readSharedArray(i);
+					if ((currNum & 0b1110000000000001) == 0b0110000000000001) {
+						int extMssg = rc.readSharedArray(i+1);
+						if((extMssg & 0b0000000000000100) == 0) {
+							MapInfo[] plotSearch = rc.senseNearbyMapInfos();
+							int xinfo = 0;
+							int yinfo = 0;
+							for (int ii = plotSearch.length - 1; ii > 0; ii--) {
+								if (plotSearch[ii].isPassable() && plotSearch[ii].getCurrentDirection() == Direction.CENTER && plotSearch[ii].hasCloud() == false) {
+									xinfo = plotSearch[ii].getMapLocation().x;
+									yinfo = plotSearch[ii].getMapLocation().y;
+								}
+							}
+							rc.writeSharedArray(9, 0b0110000000000000 | (xinfo << 7) | (yinfo << 1));
+							rc.writeSharedArray(10, 0b0000000000000100 | (extMssg & 0b0000000011111000));
+							System.out.println("WriteE");
+						}
+					}
 				}
-				
 				for (int i = 0; (rc.getRoundNum() % 5 == 0) && i < 64; i++) {
 					int currNum = rc.readSharedArray(i);
 					if ((currNum & 0b1110000000000000) == 0b0110000000000000) {
@@ -51,6 +64,7 @@ public class Headquarters extends Behavior {
 								}
 							}
 							rc.writeSharedArray(i+1, (extMssg | 0b0000000100000000));
+							System.out.println("WriteD");
 						}
 					}
 				}

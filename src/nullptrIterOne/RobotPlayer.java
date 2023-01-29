@@ -20,7 +20,7 @@ public strictfp class RobotPlayer {
 	            case LAUNCHER: agent = new LauncherRobot(rc); break;
 	            case BOOSTER: break;
 	            case DESTABILIZER: break;
-	            case AMPLIFIER: break;
+	            case AMPLIFIER: agent = new AmplifierRobot(rc); break;
 	        }
 	        agent.takeTurn();
     	} catch (Exception e) {
