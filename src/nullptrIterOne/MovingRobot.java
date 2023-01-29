@@ -87,7 +87,7 @@ public class MovingRobot extends Behavior{
 				explore();
 			}
 		} 
-		if (rc.getRoundNum() % 3 == 0) {
+		if (rc.getRoundNum() % 3 == 0 && targ != Direction.CENTER) {
 			explore();
 		}
 	}

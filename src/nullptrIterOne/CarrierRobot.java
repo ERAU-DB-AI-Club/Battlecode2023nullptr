@@ -6,6 +6,7 @@ public class CarrierRobot extends MovingRobot {
 	RobotController rc;
 	MapLocation PatrolPoint;
 	boolean hasAnchor;
+	boolean isCaravan;
 	
 	public CarrierRobot(RobotController rc) {
 		super(rc);
@@ -14,6 +15,18 @@ public class CarrierRobot extends MovingRobot {
 			if (rc.canTakeAnchor(HomeBase, Anchor.STANDARD) && rc.getRoundNum() % 3 == 0) {
 				rc.takeAnchor(HomeBase, Anchor.STANDARD);
 				hasAnchor = true;
+				for (int i = 0; i < 64; i++) {
+					int currNum = rc.readSharedArray(i);
+					if ((currNum & 0b1110000000000001) == 0b0110000000000000) {
+						PatrolPoint = new MapLocation(
+								(currNum & 0b0001111110000000) >> 7,
+								(currNum & 0b0000000001111110) >> 1);
+						setTargetLoc(PatrolPoint);
+						isCaravan = true;
+						rc.writeSharedArray(i, currNum | 0b0000000000000001);
+						i = 64;
+					}
+				}
 			}
 		}catch (GameActionException e) {
             System.out.println(rc.getType() + " Exception");
@@ -72,7 +85,7 @@ public class CarrierRobot extends MovingRobot {
 						rc.setIndicatorString("Mining " + searchResults[0].getResourceType().toString());
 					}
 				} else {
-				    if (weight > 30) {
+				    if (weight > 30 && !hasAnchor) {
 			        	rc.setIndicatorString("Going Back to Base.");
 			        	setTargetLoc(HomeBase);
 				    } 
@@ -91,6 +104,9 @@ public class CarrierRobot extends MovingRobot {
 						rc.transferResource(toBase, ResourceType.ELIXIR, rc.getResourceAmount(ResourceType.ELIXIR));
 						rc.setIndicatorString("Transferring Elixir " + pointAtBase);
 					}
+				    if (isCaravan) {
+				    	rc.setIndicatorString("Setting up a Caravan at (" + PatrolPoint.x + ", " + PatrolPoint.y + ")");
+				    }
 					moveTo();
 				}
 			} catch (GameActionException e) {
